@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Gallery</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        /*
+          CRITICAL FIX: Using a responsive grid layout.
+          This ensures all 21 cars wrap to the next line smoothly
+          and handles different screen sizes.
+        */
+        .car-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .car-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #e0e0e0; /* Placeholder gray color if your image file is missing */
+        }
+
+        .car-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .car-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .car-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #222;
+        }
+
+        .car-type {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        /* Styling for the tags depending on category */
+        .type-new {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .type-top {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .car-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .car-specs {
+            font-size: 0.8rem;
+            color: #444;
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Our Car Inventory</h1>
+
+    <!-- Container where the JavaScript will inject all 21 car elements -->
+    <div class="car-grid" id="carContainer"></div>
+
+    <script>
+        // Your complete car dataset (all 21 items)
+        const carData = [
+            {"name": "Tesla Model Y.jpg", "type": "Top-Selling", "image_url": "/static/tesla.jpg", "description": "The world's highest-selling crossover electric vehicle.", "specs": "Range: 320 mi | 0-60: 3.5s"},
+            {"name": "Porsche 911 GT3 RS.jpg", "type": "New Model", "image_url": "/static/porsche.jpg", "description": "Track-focused engineering with extreme active aerodynamics.", "specs": "Power: 518 hp | Top Speed: 184 mph"},
+            {"name": "Toyota RAV4 Hybrid.jpg", "type": "Top-Selling", "image_url": "/static/toyota.jpg", "description": "A dominant global sales leader offering supreme hybrid efficiency.", "specs": "MPG: 41 City / 38 Hwy"},
+            {"name": "Hyundai Ioniq 5 N.jpg", "type": "New Model", "image_url": "/static/hyundai.jpg", "description": "High-performance EV tracking massive driving engagement.", "specs": "Power: 641 hp | 0-60: 3.2s"},
+            {"name": "Ford F-150 Lightning.jpg", "type": "Top-Selling", "image_url": "/static/ford.jpg", "description": "America's favorite pickup truck re-engineered for the electric era.", "specs": "Towing: 10,000 lbs | Range: 320 mi"},
+            {"name": "BMW M4 Competition.jpg", "type": "New Model", "image_url": "/static/bmw.jpg", "description": "Aggressive design coupled with twin-turbo performance refinement.", "specs": "Power: 503 hp | inline 6 engine"},
+            {"name": "Honda Civic Type R.jpg", "type": "Top-Selling", "image_url": "/static/honda.jpg", "description": "The ultimate front-wheel-drive hot hatchback on the market.", "specs": "Engine: 2.0L Turbo | 315 hp"},
+            {"name": "Mercedes-AMG SL 63.jpg", "type": "New Model", "image_url": "/static/mercedes.jpg", "description": "Luxurious open-top grand tourer re-imagined by AMG.", "specs": "Engine: V8 Biturbo | 577 hp"},
+            {"name": "Chevrolet Corvette E-Ray.jpg", "type": "New Model", "image_url": "/static/corvette.jpg", "description": "First-ever all-wheel-drive hybrid mid-engine American supercar.", "specs": "0-60 mph: 2.5s | 655 hp Combined"},
+            {"name": "Kia EV6 GT.jpg", "type": "Top-Selling", "image_url": "/static/kia.jpg", "description": "Award-winning crossover matching sports car acceleration.", "specs": "Power: 576 hp | Charge: 10-80% in 18m"},
+            {"name": "Audi RS e-tron GT.jpg", "type": "Top-Selling", "image_url": "/static/audi.jpg", "description": "Striking electric sedan combining luxury grand touring with raw speed.", "specs": "Range: 249 mi | 637 hp Boost"},
+            {"name": "Mazda CX-90 Premium.jpg", "type": "New Model", "image_url": "/static/mazda.jpg", "description": "Three-row flagship SUV built on a rear-biased performance platform.", "specs": "Engine: Inline 6 Turbo Mild-Hybrid"},
+            {"name": "Nissan Z Performance.jpg", "type": "New Model", "image_url": "/static/nissan.jpg", "description": "A modern homage to iconic classic Japanese sports cars.", "specs": "Engine: Twin-Turbo V6 | 400 hp"},
+            {"name": "Volkswagen Golf R.jpg", "type": "Top-Selling", "image_url": "/static/vw.jpg", "description": "All-weather performance hatchback with advanced torque vectoring AWD.", "specs": "Power: 315 hp | Drift Mode Included"},
+            {"name": "Lexus RX 500h F Sport.jpg", "type": "Top-Selling", "image_url": "/static/lexus.jpg", "description": "The pinnacle of reliable premium luxury crossover transportation.", "specs": "Powertrain: Direct4 Hybrid System"},
+            {"name": "Land Rover Defender 130.jpg", "type": "New Model", "image_url": "/static/defender.jpg", "description": "Extended adventure vehicle built to conquer extreme overlanding trails.", "specs": "Seats: Up to 8 adults | Air Suspension"},
+            {"name": "Subaru WRX TR.jpg", "type": "New Model", "image_url": "/static/subaru.jpg", "description": "Rally-bred performance sedan equipped with Brembo performance braking.", "specs": "Engine: 2.4L Boxer Turbo | Symmetrical AWD"},
+            {"name": "Jeep Wrangler Rubicon 4xe.jpg", "type": "Top-Selling", "image_url": "/static/jeep.jpg", "description": "The best-selling plug-in hybrid vehicle in North America.", "specs": "Pure EV Range: 21 mi | Trail Rated"},
+            {"name": "Ferrari Purosangue.jpg", "type": "New Model", "image_url": "/static/ferrari.jpg", "description": "Ferrari’s legendary first-ever four-door, four-seat high-riding machine.", "specs": "Engine: Naturally Aspirated V12 | 715 hp"},
+            {"name": "Volvo EX30 Ultra.jpg", "type": "New Model", "image_url": "/static/volvo.jpg", "description": "A small, highly sustainable electric SUV packing a massive punch.", "specs": "0-60 mph: 3.4s | Eco-friendly interior"},
+            {"name": "Dodge Challenger SRT Demon 170.jpg", "type": "New Model", "image_url": "/static/dodge.jpg", "description": "The ultimate street-legal drag racing muscle car engineered to run on E85 fuel.", "specs": "Power: 1,025 hp | 0-60: 1.66s"}
+        ];
+
+        // Target the container element
+        const container = document.getElementById('carContainer');
+
+        // Loop through every single object in the array with no limits
+        carData.forEach(car => {
+            // Determine styling class based on the type value
+            const typeClass = car.type === "New Model" ? "type-new" : "type-top";
+
+            // Generate card HTML structure
+            const carCardHTML = `
+                <div class="car-card">
+                    <img src="${car.image_url}" alt="${car.name}" class="car-image">
+                    <div class="car-info">
+                        <div class="car-header">
+                            <span class="car-name">${car.name}</span>
+                            <span class="car-type ${typeClass}">${car.type}</span>
+                        </div>
+                        <p class="car-desc">${car.description}</p>
+                        <div class="car-specs"><strong>Specs:</strong> ${car.specs}</div>
+                    </div>
+                </div>
+            `;
+
+            // Append each card to our container
+            container.innerHTML += carCardHTML;
+        });
+    </script>
+</body>
+</html>
